@@ -20,30 +20,51 @@ my_xmls <- list.files("letters/", full.names = TRUE)
 # Сначала напишите код для первого письма в датасете, чтобы потренироваться. 
 
 test_xml <- my_xmls[1]
-doc <- # ваш код здесь
-ns <- # ваш код здесь
+doc <- read_xml(test_xml)
+ns <- xml_ns(doc)
 
-  
+
 # дата письма
-date <- # ваш код здесь
+date <- xml_find_first(doc, "//d1:profileDesc//d1:correspAction[@type='sending']//d1:date", ns = ns) |>
+  xml_attr("when")
 
 
 # адресат письма
-corresp <- # ваш код здесь
+corresp <- xml_find_first(doc, "//d1:profileDesc//d1:correspAction[@type='receiving']/d1:persName", ns = ns) |>
+  xml_text(trim = TRUE)
 
 # том 
-vol <- # ваш код здесь
+vol <- xml_find_first(doc, "//d1:biblScope[@unit='vol']", ns = ns) |>
+  xml_text(trim = TRUE)
 
 
 ## Когда все получится, оберните свое решение в функцию read_letter().
 
 read_letter <- function(xml_path) {
   
-  # ваш код здесь 
+  doc <- read_xml(xml_path)
+  ns <- xml_ns(doc)
+  
+  
+  # дата письма
+  date <- xml_find_first(doc, "//d1:profileDesc//d1:correspAction[@type='sending']//d1:date", ns = ns) |>
+    xml_attr("when")
+  
+  
+  # адресат письма
+  corresp <- xml_find_first(doc, "//d1:profileDesc//d1:correspAction[@type='receiving']/d1:persName", ns = ns) |>
+    xml_text(trim = TRUE)
+  
+  # том 
+  vol <- xml_find_first(doc, "//d1:biblScope[@unit='vol']", ns = ns) |>
+    xml_text(trim = TRUE)
+  
 
   # записываем в тиббл
   res <- tibble(
-    # ваш код здесь
+    date = date,
+    corresp = corresp,
+    vol = vol
    )
 
   return(res)
@@ -51,5 +72,5 @@ read_letter <- function(xml_path) {
 
 
 # Прочтите все письма в один тиббл при помощи map_dfr(). 
-letters_tbl <- # ваш код здесь
+letters_tbl <- map_dfr(my_xmls, read_letter)
 
